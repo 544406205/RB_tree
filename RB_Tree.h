@@ -12,42 +12,40 @@ public:
 	RBTreeNode* left, * right, * father;
 	RBTreeNode() :color(RBTreeColor::Black) {};
 	RBTreeNode(T val, RBTreeNode* father, RBTreeColor color) :
-		val(val), father(father), color(color), left(nullptr), right(nullptr) {
-		if (father != nullptr) {
-			if (father->val > this->val) {
-				father->left = this;
-			}
-			else {
-				father->right = this;
-			}
-		}
-	};
+		val(val), father(father), color(color), left(nullptr), right(nullptr){};
 };
 
 template<class T>
+class myless {
+public:
+	bool operator()(const T& val1, const T& val2) {
+		return val1 < val2;
+	}
+};
+
+template<class T, class Compare = myless<T>>
 class RBTree {
 private:
 	size_t _size;
+	Compare compare;
+public:
+	RBTreeNode<T>* root;
 private:
 	/*红黑树插入辅助函数*/
 	RBTreeNode<T>* help_find(const T& val) {
 		RBTreeNode<T>* node = root;
 		RBTreeNode<T>* father = nullptr;
 		while (node) {
-			if (!node) {
-				return nullptr;
-			}
-			if (node->val < val) {
-				father = node;
+			father = node;
+			if (compare(node->val, val)) {
 				node = node->right;
 			}
-			else if (node->val > val) {
-				father = node;
+			else if (compare(val, node->val)) {
 				node = node->left;
 			}
 			else {
 				return node;//相等返回相等的节点
-			}
+			}	
 		}
 		return father; //找不到返回father
 	}
@@ -259,7 +257,6 @@ private:
 	}
 	
 public:
-	RBTreeNode<T>* root;
 
 	RBTree() :root(nullptr), _size(0) {};
 		
@@ -272,16 +269,22 @@ public:
 	}
 
 	void insert(const T& val) {
-		if (!root) { //如果root为空，则赋给父节点，且为黑色
+		if (!root) { //如果root为空，则构建父节点，且为黑色
 			root = new RBTreeNode<T>(val, nullptr, RBTreeColor::Black);
 			++_size;
 			return;
 		}
 		RBTreeNode<T>* fnode = help_find(val);
-		if (fnode != nullptr && fnode->val == val) { //有重复元素，不插入
+		if (fnode->val == val) { //有重复元素，不插入
 			return;
 		}
 		RBTreeNode<T>* node = new RBTreeNode<T>(val, fnode, RBTreeColor::Red);
+		if (compare(val, fnode->val)) {
+			fnode->left = node;
+		}
+		else {
+			fnode->right = node;
+		}
 		solve_double_red(node);
 		++_size;
 	}
@@ -306,7 +309,7 @@ public:
 	}
 
 	size_t size() const {
-		return size;
+		return _size;
 	}
 	
 };
