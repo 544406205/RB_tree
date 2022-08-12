@@ -4,7 +4,7 @@ enum class RBTreeColor {
 	Black
 };
 
-template<class T>
+template<typename T>
 class RBTreeNode {
 public:
 	T val;
@@ -15,7 +15,7 @@ public:
 		val(val), father(father), color(color), left(nullptr), right(nullptr){};
 };
 
-template<class T>
+template<typename T>
 class myless {
 public:
 	bool operator()(const T& val1, const T& val2) {
@@ -23,12 +23,11 @@ public:
 	}
 };
 
-template<class T, class Compare = myless<T>>
+template<typename T, class Compare = myless<T>>
 class RBTree {
 private:
 	size_t _size;
 	Compare compare;
-public:
 	RBTreeNode<T>* root;
 private:
 	/*ºìºÚÊ÷²åÈë¸¨Öúº¯Êý*/
